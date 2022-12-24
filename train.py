@@ -135,6 +135,7 @@ def main(argv):
   logging.info('*** Starting experiment')
   # Assume G3 path for config files when running locally.
   gin_configs = FLAGS.gin_configs
+  print(FLAGS.gin_bindings, "\n\n\n")
 
   logging.info('*** Loading Gin configs from: %s', str(gin_configs))
   gin.parse_config_files_and_bindings(

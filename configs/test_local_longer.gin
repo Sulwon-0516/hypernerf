@@ -5,7 +5,7 @@ batch_size = 512
 eval_batch_size = 8192
 
 elastic_init_weight = 0.01
-max_steps = 250000
+max_steps = 1000000
 lr_decay_steps = 500000
 init_lr = 1e-3
 final_lr = 1e-5
@@ -73,6 +73,6 @@ TrainConfig.histogram_every = 100
 TrainConfig.save_every = 1000
 
 EvalConfig.eval_once = False
-EvalConfig.save_output = True
+EvalConfig.save_output = False
 EvalConfig.num_train_eval = 5
 EvalConfig.num_val_eval = 5

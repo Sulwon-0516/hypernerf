@@ -1,0 +1,39 @@
+{
+    // IntelliSense를 사용하여 가능한 특성에 대해 알아보세요.
+    // 기존 특성에 대한 설명을 보려면 가리킵니다.
+    // 자세한 내용을 보려면 https://go.microsoft.com/fwlink/?linkid=830387을(를) 방문하세요.
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "train",
+            "type": "python",
+            "request": "launch",
+            "program": "train.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--base_folder",
+                "/home/disk1/inhee/result/hypernerf",
+                "--gin_bindings", "data_dir='/home/disk1/inhee/hypernerf'",
+                "--gin_configs=configs/test_local.gin",
+            ],
+            "justMyCode": true
+        },
+        {
+            "name": "render",
+            "type": "python",
+            "request": "launch",
+            "program": "render.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--base_folder",
+                "/home/disk1/inhee/result/hypernerf",
+                "--gin_bindings", "data_dir='/home/disk1/inhee/hypernerf'",
+                "--camera_traj", "/home/disk1/inhee/hypernerf/camera-paths/nerfstudio-camera",
+                "--camera_latent", "/home/disk1/inhee/view_dnerf.txt",
+                "--video_dir", "/home/disk1/inhee/result/renders/hyper_debug.mp4",
+                "--gin_configs=configs/test_local.gin",
+            ],
+            "justMyCode": true
+        }
+    ]
+}
