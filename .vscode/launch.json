@@ -26,11 +26,11 @@
             "console": "integratedTerminal",
             "args": [
                 "--base_folder",
-                "/home/disk1/inhee/result/hypernerf",
+                "/home/disk1/inhee/result/hypernerf_longer",
                 "--gin_bindings", "data_dir='/home/disk1/inhee/hypernerf'",
-                "--camera_traj", "/home/disk1/inhee/hypernerf/camera-paths/nerfstudio-camera",
+                "--camera_traj", "/home/disk1/inhee/hypernerf/camera-paths/nerfstudio-camera-fixed",
                 "--camera_latent", "/home/disk1/inhee/view_dnerf.txt",
-                "--video_dir", "/home/disk1/inhee/result/renders/hyper_debug.mp4",
+                "--video_dir", "/home/disk1/inhee/result/renders/hyper_100k_v2_static_test.mp4",
                 "--gin_configs=configs/test_local.gin",
             ],
             "justMyCode": true

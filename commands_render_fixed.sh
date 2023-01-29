@@ -5,8 +5,8 @@ python render.py \
     --gin_bindings="data_dir='$DATASET_PATH'" \
     --gin_configs configs/test_local.gin \
     --camera_latent /home/disk1/inhee/view_dnerf.txt \
-    --video_dir /home/disk1/inhee/result/renders/hyper_100k_nv_render_v1_230130.mp4 \
-    --camera_traj /home/disk1/inhee/hypernerf/camera-paths/nerfstudio-camera
+    --video_dir /home/disk1/inhee/result/renders/hyper_100k_v2.mp4 \
+    --camera_traj /home/disk1/inhee/hypernerf/camera-paths/nerfstudio-camera-fixed
 
 # python render.py \
 #     --base_folder $EXPERIMENT_PATH \

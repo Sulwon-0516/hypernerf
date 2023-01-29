@@ -147,8 +147,15 @@ class Camera:
     if 'tangential' in camera_json:
       camera_json['tangential_distortion'] = camera_json['tangential']
 
+    orientation = np.asarray(camera_json['orientation'])
+    # nerf -> opencv coordiante
+    # TURN OFF when rendering fixed-view / or training HyperNeRF
+    # ONLY trun on when rendering with NeRF-studio camera!
+    if True:
+      orientation = np.matmul(orientation.T, np.array([[1,0,0],[0,-1,0],[0,0,-1]]))
+
     return cls(
-        orientation=np.asarray(camera_json['orientation']),
+        orientation=orientation,
         position=np.asarray(camera_json['position']),
         focal_length=camera_json['focal_length'],
         principal_point=np.asarray(camera_json['principal_point']),

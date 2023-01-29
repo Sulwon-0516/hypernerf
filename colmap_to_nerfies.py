@@ -144,7 +144,7 @@ class SceneManager:
       return imageio.imread(f)
 
 
-
+'''
   def change_basis(self, axes, center):
     """Change the basis of the scene.
 
@@ -183,7 +183,7 @@ class SceneManager:
       new_cameras[image_id] = _transform_camera(camera, transform_mat)
 
     return SceneManager(new_cameras, points, self.image_path)
-
+'''
   def filter_images(self, image_ids):
     num_filtered = 0
     for image_id in image_ids:
@@ -247,7 +247,7 @@ def get_bbox_corners(points):
 def main():
   # setting to-nerfies options
   root_dir = Path('/home/disk1/inhee/hypernerf')
-  colmap_dir = Path('/home/disk1/inhee/auto_colmap/iphone_inhee_statue/inhee_statue_dynamic/colmap')
+  colmap_dir = Path('/home/disk1/inhee/auto_colmap/iphone_inhee_statue/inhee_statue_dynamic/output/sparse')
   rgb_dir = Path('/home/disk1/inhee/auto_colmap/iphone_inhee_statue/inhee_statue_dynamic/output/images')
   camera_traj_path = Path('/home/disk1/inhee/result/debug/inhee_dynamic/nerfacto-pifu-v0/nerfacto-pifu/0/camera_path.json')
   colmap_image_scale = 1
@@ -257,7 +257,7 @@ def main():
   
   # @title Load COLMAP scene.
   scene_manager = SceneManager.from_pycolmap(
-      colmap_dir / 'sparse/0', 
+      colmap_dir , 
       rgb_dir, 
       min_track_length=5)
 
@@ -311,9 +311,7 @@ def main():
 
   print(f'Saved scene information to {scene_json_path}')
   
-  
   # Save dataset split to `dataset.json`.
-
   all_ids = scene_manager.image_ids
   val_ids = all_ids[::20]
   train_ids = sorted(set(all_ids) - set(val_ids))
@@ -385,14 +383,20 @@ def main():
   aspect = cams['keyframes'][0]["aspect"]
   focal_length = three_js_perspective_camera_focal_length(fov, height)
   
-  out_dir = root_dir / 'camera-paths' / 'nerfstudio-camera'
+  out_dir = root_dir / 'camera-paths' / 'nerfstudio-camera-v2'
   out_dir.mkdir(exist_ok=True, parents=True)
+  
+  axis_flip = np.array([
+    [-1,0,0],
+    [0,1,0],
+    [0,0,-1]
+  ])
   
   for i, cam in enumerate(cams["camera_path"]):
     nerfies_cam = dict()
     c2w = np.array(cam['camera_to_world']).reshape(4,4)
-    orien = c2w[0:3,0:3]
-    pos = c2w[0:3,3]
+    orien = c2w[0:3,0:3] @ axis_flip
+    pos = c2w[0:3,3] @ axis_flip
     nerfies_cam['orientation'] = orien.tolist()
     nerfies_cam['position'] = pos.tolist()
     nerfies_cam['focal_length'] = focal_length

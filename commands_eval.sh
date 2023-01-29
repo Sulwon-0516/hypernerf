@@ -1,5 +1,5 @@
 export DATASET_PATH=/home/disk1/inhee/hypernerf
-export EXPERIMENT_PATH=/home/disk1/inhee/result/hypernerf
+export EXPERIMENT_PATH=/home/disk1/inhee/result/hypernerf_longer
 python eval.py \
     --base_folder $EXPERIMENT_PATH \
     --gin_bindings="data_dir='$DATASET_PATH'" \

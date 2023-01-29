@@ -90,8 +90,6 @@ def render_scene(rng, devices, test_cameras, render_fn, state, datasource, rende
 
     render = render_fn(state, batch, rng=rng)
     rgb = np.array(render['rgb'])
-    rgb = np.flip(rgb, (2))
-  
     depth_med = np.array(render['med_depth'])
     results.append((rgb, depth_med))
     depth_viz = viz.colorize(depth_med.squeeze(), cmin=datasource.near, cmax=datasource.far, invert=True)
@@ -101,7 +99,6 @@ def render_scene(rng, devices, test_cameras, render_fn, state, datasource, rende
     
     cv2.imwrite(str(render_dir / rgb_img_name), image_utils.image_to_uint8(rgb))
     cv2.imwrite(str(render_dir / depth_img_name), image_utils.image_to_uint8(depth_viz))
-    rgb = np.flip(rgb, 2)
     images.append(image_utils.image_to_uint8(rgb))
     
   # generate videos 
