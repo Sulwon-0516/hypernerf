@@ -19,7 +19,26 @@ import pycolmap
 from pycolmap import Quaternion
 
 
+# I modified it to allow pinhole
 def convert_colmap_camera(colmap_camera, colmap_image):
+  """Converts a pycolmap `image` to an SFM camera."""
+  camera_rotation = colmap_image.R()
+  camera_position = -(colmap_image.t @ camera_rotation)
+  new_camera = Camera(
+      orientation=camera_rotation,
+      position=camera_position,
+      focal_length=colmap_camera.fx,
+      pixel_aspect_ratio=colmap_camera.fx / colmap_camera.fx,
+      principal_point=np.array([colmap_camera.cx, colmap_camera.cy]),
+      radial_distortion=np.array([0.0, 0.0, 0.0]),
+      tangential_distortion=np.array([0., 0.]),
+      skew=0.0,
+      image_size=np.array([colmap_camera.width, colmap_camera.height])
+  )
+  print(colmap_camera.width, colmap_camera.height)
+  return new_camera
+
+def convert_colmap_camera_original(colmap_camera, colmap_image):
   """Converts a pycolmap `image` to an SFM camera."""
   camera_rotation = colmap_image.R()
   camera_position = -(colmap_image.t @ camera_rotation)
@@ -106,19 +125,20 @@ class SceneManager:
   @classmethod
   def from_pycolmap(cls, colmap_path, image_path, min_track_length=10):
     """Create a scene manager using pycolmap."""
-    manager = pycolmap.SceneManager(str(colmap_path))
+    manager = pycolmap.SceneManager(str(colmap_path), str(image_path))
     manager.load_cameras()
     manager.load_images()
     manager.load_points3D()
     manager.filter_points3D(min_track_len=min_track_length)
     sfm_cameras = _pycolmap_to_sfm_cameras(manager)
+    #print(image_path)
     return cls(sfm_cameras, manager.get_filtered_points3D(), image_path)
 
   def __init__(self, cameras, points, image_path):
     self.image_path = Path(image_path)
     self.camera_dict = cameras
     self.points = points
-
+    print("**********", str(self.image_path))
     logging.info('Created scene manager with %d cameras', len(self.camera_dict))
 
   def __len__(self):
@@ -142,9 +162,17 @@ class SceneManager:
     path = self.image_path / f'{image_id}.png'
     with path.open('rb') as f:
       return imageio.imread(f)
+    
+  def filter_images(self, image_ids):
+    num_filtered = 0
+    for image_id in image_ids:
+      if self.camera_dict.pop(image_id, None) is not None:
+        num_filtered += 1
+
+    return num_filtered
 
 
-'''
+
   def change_basis(self, axes, center):
     """Change the basis of the scene.
 
@@ -183,14 +211,6 @@ class SceneManager:
       new_cameras[image_id] = _transform_camera(camera, transform_mat)
 
     return SceneManager(new_cameras, points, self.image_path)
-'''
-  def filter_images(self, image_ids):
-    num_filtered = 0
-    for image_id in image_ids:
-      if self.camera_dict.pop(image_id, None) is not None:
-        num_filtered += 1
-
-    return num_filtered
 
 
 
@@ -246,8 +266,8 @@ def get_bbox_corners(points):
 
 def main():
   # setting to-nerfies options
-  root_dir = Path('/home/disk1/inhee/hypernerf')
-  colmap_dir = Path('/home/disk1/inhee/auto_colmap/iphone_inhee_statue/inhee_statue_dynamic/output/sparse')
+  root_dir = Path('/home/disk1/inhee/hypernerf_230131')
+  colmap_dir = Path('/home/disk1/inhee/auto_colmap/iphone_inhee_statue/inhee_statue_dynamic/colmap/dense/sparse')
   rgb_dir = Path('/home/disk1/inhee/auto_colmap/iphone_inhee_statue/inhee_statue_dynamic/output/images')
   camera_traj_path = Path('/home/disk1/inhee/result/debug/inhee_dynamic/nerfacto-pifu-v0/nerfacto-pifu/0/camera_path.json')
   colmap_image_scale = 1
@@ -387,16 +407,16 @@ def main():
   out_dir.mkdir(exist_ok=True, parents=True)
   
   axis_flip = np.array([
-    [-1,0,0],
-    [0,1,0],
+    [1,0,0],
+    [0,-1,0],
     [0,0,-1]
   ])
   
   for i, cam in enumerate(cams["camera_path"]):
     nerfies_cam = dict()
     c2w = np.array(cam['camera_to_world']).reshape(4,4)
-    orien = c2w[0:3,0:3] @ axis_flip
-    pos = c2w[0:3,3] @ axis_flip
+    orien = c2w[0:3,0:3].T @ axis_flip
+    pos = c2w[0:3,3]
     nerfies_cam['orientation'] = orien.tolist()
     nerfies_cam['position'] = pos.tolist()
     nerfies_cam['focal_length'] = focal_length
